@@ -1,0 +1,70 @@
+   _____      _                  _
+  / ____|    | |                (_)
+ | |    _   _| |_ ___  _ __ ___  _ _ __   ___
+ | |   | | | | __/ _ \| '_ ` _ \| | '_ \ / _ \
+ | |___| |_| | || (_) | | | | | | | | | |  __/
+  \_____\__, |\__\___/|_| |_| |_|_|_| |_|\___|
+ |_   _| __/ (_)         | |       | |     | |
+   | |  |___/ _  ___  ___| |_    __| | __ _| |_ __ _
+   | | | '_ \| |/ _ \/ __| __|  / _` |/ _` | __/ _` |
+  _| |_| | | | |  __/ (__| |_  | (_| | (_| | || (_| |
+ |_____|_| |_| |\___|\___|\__|  \__,_|\__,_|\__\__,_|
+            _/ |
+           |__/
+
+
+# Introduction
+
+The Cytomine inject data script provides an easy way to add new data in Cytomine.
+It converts json and image data from your HD to Cytomine data.
+
+# Requirements
+
+User jsnow, clannister and estark must be in Cytomine.
+
+# Parameters
+
+Sample command line:
+
+    groovy -cp '/home/lrollus/git/Cytomine-java-client/target/cytomine-java-client-1.0-SNAPSHOT-jar-with-dependencies.jar' injectdata.groovy ./ http://demo.cytomine.be http://demo-upload.cytomine.be PUBLIC_KEY PRIVATE_KEY
+
+    * Command line: groovy -cp 'PATH_TO_CYTOMINE_JAVA_CLIENT' injectdata.groovy
+    * 1: working directory: path where you have your dataset
+    * 2: cytomine URL
+    * 3: cytomine demo URL
+    * 4: publickey (superadmin!)
+    * 5: privatekey (superadmin!)
+    * 6: prefix: prefix for project/ontology name
+    * 7: suffix: suffix for project/ontology name
+
+# How it works
+
+In the working directory, you must have a folder for each project.
+
+---PROJECT_NAME/
+------ontology.json
+------imageinstance.json
+------annotation.json
+------software.json
+------images/
+------------images01.png/tif/...
+------------images*.png/tif/...
+
+* The ontology.json (optional) contains a json from cytomine (e.g. /api/ontology/123.json).
+If the ontology name already exists on the cytomine instance, the project will be link with this ontology.
+Otherwise, the ontology will be created. The script create the term (only terms list are supported, no terms tree)
+* Each images that must be uploaded needs to be under the images/ directory (optional).
+* The imageinstance.json (optional; e.g. /api/project/123/imageinstance.json) is only usefull if you have an annotation.json
+* The annotation.json contains the annotation to add (optional; e.g. /api/annotation.json?project=...&showMeta=true&showWKT=true)).
+ShowWKT must be true! (to get the annotation location). The imageinstance.json file will link image_id from annotation.json and the good image from images/ (annotation.json contains bad image id!).
+* The software.json (optional) contains all software that must be included in the project.
+
+
+# For the futur...
+
+* Generalize users (no jsnow,...) and pass these users as parameters
+* This script is able to import data. If we create a script that export data, we can import/export project data from one cytomine instance to another.
+
+
+
+
