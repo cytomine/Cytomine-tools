@@ -1,0 +1,1 @@
+groovy -cp 'jts-1.13.jar' test.groovy
