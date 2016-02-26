@@ -40,18 +40,12 @@ idsTerm.each {
     terms << term
 }
 
-Thread.sleep(10)
-cytomine.changeStatus(idJob,Cytomine.JobStatus.RUNNING,10)
-
 println "Get images"
 
 idsImages.each {
     ImageInstance image = cytomine.getImageInstance(Long.parseLong(it))
     images << image
 }
-
-Thread.sleep(10)
-cytomine.changeStatus(idJob,Cytomine.JobStatus.RUNNING,20)
 
 terms.each { term ->
     images.each { image ->
@@ -74,9 +68,6 @@ terms.each { term ->
     }
 }
 
-Thread.sleep(10)
-cytomine.changeStatus(idJob,Cytomine.JobStatus.RUNNING,50)
-
 
 
 file << ";;Summarize Area;\n"
@@ -84,26 +75,26 @@ file << ";;Image;"
 for(int i=0; i<terms.size(); i++){
     file << terms[i].getStr('name')+";"
 }
-file << "Total;\n"
+file << ";;Total;\n"
 
 for(int i=0; i<images.size(); i++){
     file << ";;"+images[i].getStr('instanceFilename')+";"
     def datasByImage = datas.findAll{it.image == images[i]}
     for(int j=0; j<terms.size(); j++){
-        def totArea = datasByImage.findAll{it.term == terms[j]}.collect{it.area}.sum()?:0
-        file << totArea +";"
+        def totArea = datasByImage.findAll{it.term == terms[j]}.collect{it.area}.sum()?:0.0d
+        file << totArea.round() +";"
     }
-    def totArea = datasByImage.collect{it.area}.sum()?:0
-    file << totArea+";\n"
+    def totArea = datasByImage.collect{it.area}.sum()?:0.0d
+    file << totArea.round()+";\n"
 }
 
 file << ";;Total;"
 for(int i=0; i<terms.size(); i++){
-    def totArea = datas.findAll{it.term == terms[i]}.collect{it.area}.sum()?:0
-    file << totArea +";"
+    def totArea = datas.findAll{it.term == terms[i]}.collect{it.area}.sum()?:0.0d
+    file << totArea.round() +";"
 }
-def totArea = datas.collect{it.area}.sum()?:0
-file << totArea+";\n"
+def totArea = datas.collect{it.area}.sum()?:0.0d
+file << totArea.round()+";\n"
 
 
 for(int i=0; i<4; i++){
@@ -157,9 +148,9 @@ for(int i=0; i<images.size(); i++){
     def datasByImage = datas.findAll{it.image == images[i]}
     def totAreaByImage = datasByImage.collect{it.area}.sum()?:0
     for(int j=0; j<terms.size(); j++){
-        def termArea = datasByImage.findAll{it.term == terms[j]}.collect{it.area}.sum() ?:0
-        def ratio = totAreaByImage == 0.0 ? 0 : (termArea / totAreaByImage)
-        file << ratio +";"
+        def termArea = datasByImage.findAll{it.term == terms[j]}.collect{it.area}.sum() ?:0.0d
+        def ratio = totAreaByImage == 0.0 ? 0.0d : (termArea / totAreaByImage)
+        file << ratio.round(6) +";"
     }
     def ratio = 1
     file << ratio+";\n"
@@ -179,7 +170,6 @@ for(int i=0; i<images.size(); i++){
     file << ";;Image "+(i+1)+";\n"
     file << ";;"+images[i].getStr('instanceFilename')+";\n"
     file << ";;************************************************************************;\n"
-    for(int k=0; k<4; k++){ file << ";;;\n"}
 
     for(int j=0; j<terms.size(); j++){
         for(int k=0; k<4; k++){ file << ";;;\n"}
@@ -187,16 +177,16 @@ for(int i=0; i<images.size(); i++){
         file << ";;"+terms[j].getStr('name')+";\n"
         file << ";;Created;Area;\n"
         datas.findAll{it.term == terms[j] && it.image == images[i]}.each {
-            file << ";;"+it.created+";"+it.area+";\n"
+            file << ";;"+it.created.format('yyyy.MM.dd HH:mm:ss')+";"+it.area.round(1)+";\n"
         }
         file << ";;;\n"	
 
         def numberAnnot = datas.findAll{it.term == terms[j] && it.image == images[i]}.size()
-        totArea = datas.findAll{it.term == terms[j] && it.image == images[i]}.collect{it.area}.sum()?:0
-        def meanArea = numberAnnot == 0.0 ? 0 : (totArea / numberAnnot)
+        totArea = datas.findAll{it.term == terms[j] && it.image == images[i]}.collect{it.area}.sum()?:0.0d
+        def meanArea = numberAnnot == 0.0 ? 0.0d : (totArea / numberAnnot)
 
         file << ";;Annotations number;"+numberAnnot+";\n"
-        file << ";;Average Area;"+meanArea+";\n"
+        file << ";;Average Area;"+meanArea.round()+";\n"
         file << ";;Total Area;"+totArea+";\n"
     }
     
